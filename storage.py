@@ -166,7 +166,7 @@ def app(app_path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-r', '--repo', default='wxy1343/ManifestAutoUpdate')
+parser.add_argument('-r', '--repo', default='isKoi/Manifest-AutoUpdate')
 parser.add_argument('-a', '--app-id')
 parser.add_argument('-p', '--app-path')
 args = parser.parse_args()
