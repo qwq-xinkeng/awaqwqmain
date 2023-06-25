@@ -350,7 +350,7 @@ class ManifestAutoUpdate:
                 result = steam.login(username, password, steam.login_key, two_factor_code=generate_twofactor_code(
                     base64.b64decode(shared_secret)) if shared_secret else None)
             elif result in (EResult.AccountLogonDenied, EResult.AccountDisabled,
-                            EResult.AccountLoginDeniedNeedTwoFactor, EResult.PasswordUnset):
+                            EResult.AccountLoginDeniedNeedTwoFactor, EResult.PasswordUnset, EResult.InvalidPassword):
                 logging.warning(f'User {username} has been disabled!')
                 self.user_info[username]['enable'] = False
                 self.user_info[username]['status'] = result
