@@ -143,7 +143,7 @@ class Pr:
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-r', '--repo', default='https://github.com/wxy1343/ManifestAutoUpdate')
+parser.add_argument('-r', '--repo', default='https://github.com/isKoi/Manifest-AutoUpdate')
 parser.add_argument('-t', '--token')
 parser.add_argument('-l', '--level', default='INFO')
 
