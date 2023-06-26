@@ -86,7 +86,7 @@
 1. fork本仓库(使用`Actions`初始化可跳过以下步骤)
 2. 安装git,并配置你的`github`账号
 3. 克隆你fork的仓库
-    * `git clone https://github.com/你的名称/ManifestAutoUpdate --recurse-submodules --depth=1`
+    * `git clone https://github.com/你的名称/Manifest-AutoUpdate --recurse-submodules --depth=1`
         * `--recurse-submodules`: 克隆子模块
         * `--depth=1`: 浅克隆
 4. 安装依赖
@@ -144,5 +144,5 @@
 
 ## 仓库游戏查看
 
-1. [apps.xlsx](https://github.com/wxy1343/ManifestAutoUpdate/raw/data/apps.xlsx)
+1. [apps.xlsx](https://github.com/isKoi/Manifest-AutoUpdate/raw/data/apps.xlsx)
 2. [在线查看](https://docs.google.com/spreadsheets/d/1tS-Tar11TAqnlaeh4c7kHJq-vHF8QiQ-EtcEy5NO8a8)
