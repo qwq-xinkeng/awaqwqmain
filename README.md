@@ -25,8 +25,9 @@
         * `-U, --users`: 限定爬取的账号,可指定多个,空格分隔
     * `storage.py`: 使用清单一键入库
         * `-r, --repo`: 指定仓库
-        * `-a, --app-id`: 游戏id
+        * `-a, --app-id`: 游戏id, 支持多次，使用空格分隔
         * `-p, --app-path`: 导入本仓库app分支格式的目录
+        * `-g, --greenluma`: 使用greenluma导入
     * `apps.py`: 导出仓库所有游戏信息到`apps.xlsx`
         * `-r, --repo`: 指定仓库
         * `-o, --output`: 保存目录

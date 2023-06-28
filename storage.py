@@ -15,16 +15,16 @@ lock = Lock()
 
 
 def get(sha, path):
-    url_list = [f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',
-                f'https://ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}']
+    url_list = [f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',f'https://ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',f'https://raw.staticdn.net/{repo}/{sha}/{path}',f'https://raw.fastgit.org/{repo}/{sha}/{path}'
+                ]
     retry = 3
     while True:
         for url in url_list:
             try:
-                r = requests.get(url)
+                r = requests.get(url,timeout=10)
                 if r.status_code == 200:
                     return r.content
-            except requests.exceptions.ConnectionError:
+            except:
                 print(f'获取失败: {path}')
                 retry -= 1
                 if not retry:
@@ -32,7 +32,7 @@ def get(sha, path):
                     raise
 
 
-def get_manifest(sha, path, steam_path: Path, app_id=None):
+def get_manifest(sha, path, steam_path: Path):
     try:
         if path.endswith('.manifest'):
             depot_cache_path = steam_path / 'depotcache'
@@ -87,6 +87,8 @@ def depotkey_merge(config_path, depots_config):
 
 
 def stool_add(depot_list):
+    if 'greenluma' in args:
+        return False
     info_path = Path('~/AppData/Roaming/Stool/info.pak').expanduser()
     conn = sqlite3.connect(info_path)
     c = conn.cursor()
@@ -116,10 +118,17 @@ def main(app_id):
         if 'tree' in r.json():
             stool_add([(app_id, '1', None)])
             result_list = []
+            manifest_id = []
             with Pool(32) as pool:
                 pool: ThreadPool
                 for i in r.json()['tree']:
-                    result_list.append(pool.apply_async(get_manifest, (sha, i['path'], get_steam_path(), app_id)))
+                    if 'greenluma' in args:
+                        if i['path'].endswith('.manifest'):
+                            id = i['path'].split('_')[0]
+                            manifest_id.append(id)
+                    result_list.append(pool.apply_async(get_manifest, (sha, i['path'], get_steam_path())))
+                if 'greenluma' in args:
+                    result_list.append(pool.apply_async(generate_applist, (app_id, None, manifest_id)))
                 try:
                     while pool._state == 'RUN':
                         if all([result.ready() for result in result_list]):
@@ -165,10 +174,55 @@ def app(app_path):
                     print('导入steamtools成功')
 
 
+def generate_applist(appid, dlcid, manifest_id):
+    try:
+        steam_path = get_steam_path()
+        applist_path = steam_path / 'AppList'
+        ids = str(appid) + ',' + str(dlcid)
+        if dlcid is not None:
+            id_list = ids.split(',')
+        else:
+            id_list = ids.split(',')
+            id_list.pop()
+        if manifest_id is not None:
+            id_list.extend(manifest_id)
+        if not applist_path.exists():
+            applist_path.mkdir(exist_ok=True)
+        depot_dict = {}
+        for i in applist_path.iterdir():
+            if i.suffix == '.txt':
+                with i.open('r', encoding='utf-8') as f:
+                    app_id = f.read().strip()
+                    depot_dict[int(i.stem)] = None
+                    if app_id.isdecimal():
+                        depot_dict[int(i.stem)] = int(app_id)
+        for id in id_list:
+            if int(id) not in depot_dict.values():
+                index = max(depot_dict.keys()) + 1 if depot_dict.keys() else 0
+                if index != 0:
+                    for i in range(max(depot_dict.keys())):
+                        if i not in depot_dict.keys():
+                            index = i
+                with (applist_path / f'{index}.txt').open('w', encoding='utf-8') as f:
+                    f.write(str(id))
+                print(f'创建{index}.txt')
+                depot_dict[index] = int(id)
+            else:
+                print(f'{id} 已存在')
+        appcache_path = steam_path / 'appcache'
+        if appcache_path.exists():
+            shutil.rmtree(appcache_path)
+    except Exception:
+        traceback.print_exc()
+        return False
+    return True
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--repo', default='isKoi/Manifest-AutoUpdate')
-parser.add_argument('-a', '--app-id')
+parser.add_argument('-a', '--app-id', nargs='+')
 parser.add_argument('-p', '--app-path')
+parser.add_argument('-g', '--greenluma',nargs='?')
 args = parser.parse_args()
 repo = args.repo
 if __name__ == '__main__':
@@ -176,7 +230,10 @@ if __name__ == '__main__':
         if args.app_path:
             app(args.app_path)
         else:
-            main(args.app_id or input('appid: '))
+            if not args.app_id:
+                args.app_id = input('appid: ')
+            for id in args.app_id:
+                main(id)
     except KeyboardInterrupt:
         exit()
     except:
