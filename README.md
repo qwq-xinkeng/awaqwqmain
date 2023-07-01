@@ -27,7 +27,7 @@
         * `-r, --repo`: 指定仓库
         * `-a, --app-id`: 游戏id, 支持多次，使用空格分隔
         * `-p, --app-path`: 导入本仓库app分支格式的目录
-        * `-g, --greenluma`: 使用greenluma导入
+        * `-g, --greenluma`: 使用`greenluma`导入
     * `apps.py`: 导出仓库所有游戏信息到`apps.xlsx`
         * `-r, --repo`: 指定仓库
         * `-o, --output`: 保存目录
@@ -54,6 +54,8 @@
         * 默认加密: `users.json client/*.key 2fa.json`
     * `data/2fa.json`: 记录账号`2fa`信息
         * 格式: `{"账号": "shared_secret", ...}`
+    * `data/ids.json`: 用于存放游戏`dlcid`，以供`greenluma`使用
+        * 格式: `{"appid": {"name": 游戏名称, "dlcid":[111111, 222222]}}`
 * 以`appid`为名称的分支: 该分支用于存放清单和密钥文件
     * `depots/xxx`: 程序运行后如果该`app`有新的清单会从远程拉取对应`appid`分支,不存在则会使用`main`分支的第一次提交创建一个空的`appid`分支,使用`worktree`
       将其签出到`depots/对应appid分支`目录,例如`depots/11111`

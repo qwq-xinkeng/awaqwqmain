@@ -17,7 +17,7 @@ lock = Lock()
 def get(sha, path):
     url_list = [f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',f'https://ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',f'https://raw.staticdn.net/{repo}/{sha}/{path}',f'https://raw.fastgit.org/{repo}/{sha}/{path}'
                 ]
-    retry = 3
+    retry = 5
     while True:
         for url in url_list:
             try:
@@ -128,7 +128,7 @@ def main(app_id):
                             manifest_id.append(id)
                     result_list.append(pool.apply_async(get_manifest, (sha, i['path'], get_steam_path())))
                 if 'greenluma' in args:
-                    result_list.append(pool.apply_async(generate_applist, (app_id, None, manifest_id)))
+                    result_list.append(pool.apply_async(generate_applist, (app_id, get_dlc_id(app_id), manifest_id)))
                 try:
                     while pool._state == 'RUN':
                         if all([result.ready() for result in result_list]):
@@ -144,6 +144,17 @@ def main(app_id):
                 return True
     print(f'入库失败: {app_id}')
     return False
+
+
+def get_dlc_id(app_id):
+    url = f'https://api.github.com/repos/{repo}/branches/data'
+    r = requests.get(url)
+    if 'commit' in r.json():
+        sha = r.json()['commit']['sha']
+        idList = eval(get(sha,'ids.json'))
+        if app_id in idList:
+            dlc_id = idList[app_id]['dlcid']
+            return dlc_id
 
 
 def app(app_path):
@@ -174,16 +185,13 @@ def app(app_path):
                     print('导入steamtools成功')
 
 
-def generate_applist(appid, dlcid, manifest_id):
+def generate_applist(app_id, dlc_id, manifest_id):
     try:
         steam_path = get_steam_path()
         applist_path = steam_path / 'AppList'
-        ids = str(appid) + ',' + str(dlcid)
-        if dlcid is not None:
-            id_list = ids.split(',')
-        else:
-            id_list = ids.split(',')
-            id_list.pop()
+        id_list = [app_id]
+        if dlc_id is not None:
+            id_list.extend(dlc_id)
         if manifest_id is not None:
             id_list.extend(manifest_id)
         if not applist_path.exists():
@@ -205,16 +213,16 @@ def generate_applist(appid, dlcid, manifest_id):
                             index = i
                 with (applist_path / f'{index}.txt').open('w', encoding='utf-8') as f:
                     f.write(str(id))
-                print(f'创建{index}.txt')
                 depot_dict[index] = int(id)
             else:
                 print(f'{id} 已存在')
         appcache_path = steam_path / 'appcache'
         if appcache_path.exists():
             shutil.rmtree(appcache_path)
-    except Exception:
+    except:
         traceback.print_exc()
-        return False
+        raise
+    print('添加Applist成功')
     return True
 
 
