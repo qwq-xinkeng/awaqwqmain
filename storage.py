@@ -87,7 +87,7 @@ def depotkey_merge(config_path, depots_config):
 
 
 def stool_add(depot_list):
-    if 'greenluma' in args:
+    if args.greenluma:
         return False
     info_path = Path('~/AppData/Roaming/Stool/info.pak').expanduser()
     conn = sqlite3.connect(info_path)
@@ -122,12 +122,13 @@ def main(app_id):
             with Pool(32) as pool:
                 pool: ThreadPool
                 for i in r.json()['tree']:
-                    if 'greenluma' in args:
+                    if args.greenluma:
                         if i['path'].endswith('.manifest'):
                             id = i['path'].split('_')[0]
                             manifest_id.append(id)
-                    result_list.append(pool.apply_async(get_manifest, (sha, i['path'], get_steam_path())))
-                if 'greenluma' in args:
+                    if not args.delete:
+                        result_list.append(pool.apply_async(get_manifest, (sha, i['path'], get_steam_path())))
+                if args.greenluma:
                     result_list.append(pool.apply_async(generate_applist, (app_id, get_dlc_id(app_id), manifest_id)))
                 try:
                     while pool._state == 'RUN':
@@ -201,9 +202,16 @@ def generate_applist(app_id, dlc_id, manifest_id):
             if i.suffix == '.txt':
                 with i.open('r', encoding='utf-8') as f:
                     app_id = f.read().strip()
+                    if args.delete:
+                        if app_id in id_list:
+                            f.close()
+                            os.remove(applist_path / i.name)
+                            print(f'删除{i.name}')
                     depot_dict[int(i.stem)] = None
                     if app_id.isdecimal():
                         depot_dict[int(i.stem)] = int(app_id)
+        if args.delete:
+            return True
         for id in id_list:
             if int(id) not in depot_dict.values():
                 index = max(depot_dict.keys()) + 1 if depot_dict.keys() else 0
@@ -230,7 +238,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--repo', default='isKoi/Manifest-AutoUpdate')
 parser.add_argument('-a', '--app-id', nargs='+')
 parser.add_argument('-p', '--app-path')
-parser.add_argument('-g', '--greenluma',nargs='?')
+parser.add_argument('-g', '--greenluma', default=False, action='store_true')
+parser.add_argument('-d', '--delete', default=False, action='store_true')
 args = parser.parse_args()
 repo = args.repo
 if __name__ == '__main__':
