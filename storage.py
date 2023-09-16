@@ -17,13 +17,15 @@ lock = Lock()
 def get(sha, path):
     url_list = [f'https://cdn.jsdelivr.net/gh/{repo}@{sha}/{path}',f'https://ghproxy.com/https://raw.githubusercontent.com/{repo}/{sha}/{path}',f'https://raw.staticdn.net/{repo}/{sha}/{path}',f'https://raw.fastgit.org/{repo}/{sha}/{path}'
                 ]
-    retry = 5
+    retry = 8
     while True:
         for url in url_list:
             try:
                 r = requests.get(url,timeout=10)
                 if r.status_code == 200:
                     return r.content
+                elif r.status_code == 404:
+                    return False
             except:
                 print(f'获取失败: {path}')
                 retry -= 1
@@ -143,6 +145,8 @@ def main(app_id):
                 print(f'入库成功: {app_id}')
                 print('重启steam生效')
                 return True
+    elif r.status_code == 403:
+        print('Github请求过于频繁, 请稍后再试')
     print(f'入库失败: {app_id}')
     return False
 
@@ -152,7 +156,8 @@ def get_dlc_id(app_id):
     r = requests.get(url)
     if 'commit' in r.json():
         sha = r.json()['commit']['sha']
-        idList = eval(get(sha,'ids.json'))
+        idList = get(sha,'ids.json')
+        idList = {} if idList == False else eval(idList)
         if app_id in idList:
             dlc_id = idList[app_id]['dlcid']
             return dlc_id
@@ -230,7 +235,7 @@ def generate_applist(app_id, dlc_id, manifest_id):
     except:
         traceback.print_exc()
         raise
-    print('添加Applist成功')
+    print('导入greenluma成功')
     return True
 
 
