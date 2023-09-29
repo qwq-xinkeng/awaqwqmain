@@ -431,9 +431,12 @@ class ManifestAutoUpdate:
                         app_id_list.extend(list(info['appids'].values()))
         self.log.info(f'User {username}: {len(app_id_list)} paid app found!')
         if not app_id_list:
+            '''
             self.user_info[username]['enable'] = False
             self.user_info[username]['status'] = result
             logging.warning(f'User {username}: Does not have any app and has been disabled!')
+            '''
+            logging.info(product_info)
             return
         self.log.debug(f'User {username}, paid app id list: ' + ','.join([str(i) for i in app_id_list]))
         self.log.info(f'User {username}: Waiting to get app info!')
