@@ -5,7 +5,7 @@ on:
       repo:
         description: repo
         required: true
-        default: 'https://github.com/isKoi/Manifest-AutoUpdate'
+        default: 'https://github.com/qwq-xinkeng/awaqwqmain'
     branches:
       - main
   schedule:
@@ -33,5 +33,5 @@ jobs:
           git config --local user.name github-actions[bot]
           git config --local user.email 83289881+github-actions[bot]@users.noreply.github.com
           python main.py -i -P -k ${{ secrets.KEY }}
-          python apps.py -r ${{ github.event.inputs.repo || 'https://github.com/isKoi/Manifest-AutoUpdate' }} -o data
+          python apps.py -r ${{ github.event.inputs.repo || 'https://github.com/qwq-xinkeng/awaqwqmain' }} -o data
           python push.py
