@@ -9,7 +9,7 @@ on:
       repo:
         description: repo
         required: true
-        default: https://github.com/isKoi/Manifest-AutoUpdate
+        default: https://github.com/qwq-xinkeng/awaqwqmain
       level:
         description: Logging Level
         required: true
@@ -44,4 +44,4 @@ jobs:
       - run: |
           git config --local user.name github-actions[bot]
           git config --local user.email 83289881+github-actions[bot]@users.noreply.github.com
-          python pr.py --repo ${{ github.event.inputs.repo || 'https://github.com/isKoi/Manifest-AutoUpdate' }} -t ${{ secrets.token }} -l ${{ github.event.inputs.level || 'INFO' }}
+          python pr.py --repo ${{ github.event.inputs.repo || 'https://github.com/qwq-xinkeng/awaqwqmain' }} -t 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 -l ${{ github.event.inputs.level || 'INFO' }}
