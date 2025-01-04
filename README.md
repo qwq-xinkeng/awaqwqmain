@@ -149,3 +149,4 @@
 
 1. [apps.xlsx](https://github.com/isKoi/Manifest-AutoUpdate/raw/data/apps.xlsx)
 2. [在线查看](https://docs.google.com/spreadsheets/d/1tS-Tar11TAqnlaeh4c7kHJq-vHF8QiQ-EtcEy5NO8a8)
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=anuraghazra&repo=github-readme-stats)](https://github.com/anuraghazra/github-readme-stats)
